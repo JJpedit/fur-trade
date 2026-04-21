@@ -1,63 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Fur Trade Hunting Game</title>
+  <title>Fur Trade World</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<h1>Fur Trade Hunting Game</h1>
+<h2 id="ui"></h2>
+<h3 id="info"></h3>
 
-<h2 id="info"></h2>
+<canvas id="game" width="800" height="450"></canvas>
 
-<div class="container">
+<div id="tradeUI" style="display:none;">
+  <h3>Trading Phase</h3>
+  <p id="tradeText"></p>
 
-  <!-- HUNTING MAP -->
-  <div class="box">
-    <h2>Hunting Area</h2>
-
-    <div class="hunt-area">
-
-      <img onclick="hunt('wolf')" src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Wolf_pelt.jpg" title="Wolf">
-      <img onclick="hunt('beaver')" src="https://upload.wikimedia.org/wikipedia/commons/1/1c/Beaver_pelt.jpg" title="Beaver">
-      <img onclick="hunt('fox')" src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Fox_pelt.jpg" title="Fox">
-
-    </div>
-
-    <p>Click an animal to hunt it and get pelts</p>
-  </div>
-
-  <!-- PLAYER -->
-  <div class="box">
-    <h2>Métis Inventory</h2>
-    <div id="playerInv"></div>
-
-    <h3>Trade Offer</h3>
-    <div id="playerOffer"></div>
-
-    <button onclick="startTrade()">Offer Trade</button>
-  </div>
-
-  <!-- TRADER -->
-  <div class="box">
-    <h2>European Trader Inventory</h2>
-    <div id="traderInv"></div>
-
-    <h3>Trade Offer</h3>
-    <div id="traderOffer"></div>
-
-    <button onclick="acceptTrade()">Accept Trade</button>
-  </div>
-
+  <button onclick="offerItem()">Offer Item</button>
+  <button onclick="acceptTrade()">Accept Trade</button>
+  <button onclick="exitTrade()">Leave</button>
 </div>
-
-<p id="result"></p>
-
-<footer style="margin-top:20px; font-size:14px;">
-  Made by Hudson and Jaittran
-</footer>
 
 <script src="script.js"></script>
 
