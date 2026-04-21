@@ -4,8 +4,14 @@ let traderInventory = [];
 let playerOffer = [];
 let traderOffer = [];
 
-// ITEMS (REAL PELT IMAGES + VALUES)
-const items = [
+let playerAccepted = false;
+let traderAccepted = false;
+
+let playerScore = 0;
+let traderScore = 0;
+
+// ITEMS (values will change slightly over time)
+const baseItems = [
   {
     name: "Wolf Pelt",
     value: 10,
@@ -28,19 +34,36 @@ const items = [
   }
 ];
 
-// START ITEMS
-for (let i = 0; i < 3; i++) {
-  playerInventory.push(randomItem());
-  traderInventory.push(randomItem());
+// clone items so we can modify values over time
+function getItems() {
+  return baseItems.map(item => {
+    return {
+      ...item,
+      value: item.value + Math.floor(Math.random() * 3 - 1) // -1 to +1 change
+    };
+  });
 }
 
-// ---------------- HELPERS ----------------
-function randomItem() {
-  return items[Math.floor(Math.random() * items.length)];
+// START GAME
+function init() {
+  let items = getItems();
+
+  for (let i = 0; i < 3; i++) {
+    playerInventory.push(randomItem(items));
+    traderInventory.push(randomItem(items));
+  }
+
+  render();
 }
 
+// RANDOM ITEM
+function randomItem(list = baseItems) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+// TOTAL VALUE
 function total(arr) {
-  return (arr || []).reduce((sum, item) => sum + item.value, 0);
+  return arr.reduce((sum, i) => sum + i.value, 0);
 }
 
 // ---------------- RENDER ----------------
@@ -51,22 +74,24 @@ function render() {
   show("traderOffer", traderOffer);
 
   document.getElementById("valueDisplay").innerText =
-    "Your Offer: " + total(playerOffer) +
-    " | Trader Offer: " + total(traderOffer);
+    `Your Score: ${playerScore} | Trader Score: ${traderScore}`;
+
+  checkWinner();
 }
 
+// DISPLAY ITEMS
 function show(id, arr, clickFn) {
   let div = document.getElementById(id);
   div.innerHTML = "";
 
-  (arr || []).forEach((item, i) => {
+  arr.forEach((item, i) => {
     let el = document.createElement("div");
     el.className = "item";
 
     el.innerHTML = `
-      <img src="${item.img}"><br>
-      ${item.name}<br>
-      💰 ${item.value}
+      <img src="${item.img}">
+      <br>${item.name}
+      <br>💰 ${item.value}
     `;
 
     if (clickFn) el.onclick = () => clickFn(i);
@@ -75,56 +100,59 @@ function show(id, arr, clickFn) {
   });
 }
 
-// ---------------- INVENTORY CLICK ----------------
-function addPlayer(index) {
-  playerOffer.push(playerInventory[index]);
-  playerInventory.splice(index, 1);
+// ---------------- PLAYER ACTIONS ----------------
+function addPlayer(i) {
+  playerOffer.push(playerInventory[i]);
+  playerInventory.splice(i, 1);
+  playerAccepted = false;
+  traderAccepted = false;
   render();
 }
 
-function addTrader(index) {
-  traderOffer.push(traderInventory[index]);
-  traderInventory.splice(index, 1);
+function addTrader(i) {
+  traderOffer.push(traderInventory[i]);
+  traderInventory.splice(i, 1);
+  playerAccepted = false;
+  traderAccepted = false;
   render();
 }
 
-// ---------------- HUNTING ----------------
-function hunt() {
-  let found = randomItem();
-  playerInventory.push(found);
-
-  document.getElementById("result").innerText =
-    "🐺 You hunted and found: " + found.name;
-
-  render();
-}
-
-// ---------------- TRADE ----------------
+// ---------------- ACCEPT SYSTEM ----------------
 function attemptTrade() {
-  let playerValue = total(playerOffer);
-  let traderValue = total(traderOffer);
+  playerAccepted = true;
 
-  let diff = Math.abs(playerValue - traderValue);
+  // NPC decides automatically
+  let playerVal = total(playerOffer);
+  let traderVal = total(traderOffer);
 
-  if (playerOffer.length === 0 || traderOffer.length === 0) {
-    document.getElementById("result").innerText =
-      "❌ Both sides must offer items!";
-    return;
+  if (traderVal < playerVal - 2) {
+    traderAccepted = false;
+  } else {
+    traderAccepted = Math.random() > 0.3; // NPC sometimes refuses
   }
 
-  if (diff <= 2) {
-    // ACCEPT TRADE
+  document.getElementById("result").innerText =
+    `You: ${playerAccepted ? "✔" : "❌"} | Trader: ${traderAccepted ? "✔" : "❌"}`;
+
+  resolveTrade();
+}
+
+// ---------------- TRADE LOGIC ----------------
+function resolveTrade() {
+  if (playerAccepted && traderAccepted) {
     playerInventory.push(...traderOffer);
     traderInventory.push(...playerOffer);
+
+    let pVal = total(playerOffer);
+    let tVal = total(traderOffer);
+
+    playerScore += tVal;
+    traderScore += pVal;
 
     playerOffer = [];
     traderOffer = [];
 
-    document.getElementById("result").innerText =
-      "✅ Trade accepted!";
-  } else {
-    document.getElementById("result").innerText =
-      "❌ Trade rejected (too unfair)";
+    document.getElementById("result").innerText = "✅ Trade completed!";
   }
 
   render();
@@ -138,11 +166,23 @@ function resetTrade() {
   playerOffer = [];
   traderOffer = [];
 
-  document.getElementById("result").innerText =
-    "🔄 Trade reset";
+  playerAccepted = false;
+  traderAccepted = false;
+
+  document.getElementById("result").innerText = "🔄 Reset trade";
 
   render();
 }
 
-// INIT
-render();
+// ---------------- WIN CONDITION ----------------
+function checkWinner() {
+  if (playerScore >= 50) {
+    document.getElementById("result").innerText = "🏆 YOU WIN THE FUR TRADE!";
+  }
+
+  if (traderScore >= 50) {
+    document.getElementById("result").innerText = "💀 TRADER DOMINATES THE MARKET!";
+  }
+}
+
+init();
