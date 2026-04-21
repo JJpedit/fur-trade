@@ -2,51 +2,59 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Fur Trade Game</title>
+  <title>Fur Trade Simulation</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<h1>Fur Trade Simulator</h1>
+<h1>Fur Trade Simulation</h1>
 
-<h2 id="valueDisplay"></h2>
+<h2 id="info"></h2>
 
 <div class="container">
 
-  <!-- PLAYER SIDE -->
+  <!-- HUNTING ZONE -->
   <div class="box">
-    <h2>Your Inventory</h2>
+    <h2>Hunting Grounds</h2>
+
+    <div class="hunt-area">
+
+      <img onclick="hunt('wolf')" src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Wolf_pelt.jpg">
+      <img onclick="hunt('beaver')" src="https://upload.wikimedia.org/wikipedia/commons/1/1c/Beaver_pelt.jpg">
+      <img onclick="hunt('fox')" src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Fox_pelt.jpg">
+
+    </div>
+
+    <p>Click an animal to hunt it</p>
+  </div>
+
+  <!-- PLAYER (MÉTIS) -->
+  <div class="box">
+    <h2>Métis Inventory</h2>
     <div id="playerInv"></div>
 
-    <h3>Your Trade Offer</h3>
+    <h3>Trade Offer</h3>
     <div id="playerOffer"></div>
 
-    <button onclick="hunt()">Hunt</button>
+    <button onclick="startTrade()">Offer Trade</button>
   </div>
 
-  <!-- CENTER CONTROL -->
+  <!-- TRADER (EUROPEAN) -->
   <div class="box">
-    <h2>Trade Controls</h2>
-
-    <button onclick="attemptTrade()">Offer Trade</button>
-    <button onclick="resetTrade()">Reset Trade</button>
-
-    <p id="result"></p>
-  </div>
-
-  <!-- TRADER SIDE -->
-  <div class="box">
-    <h2>Trader Inventory</h2>
+    <h2>European Trader Inventory</h2>
     <div id="traderInv"></div>
 
-    <h3>Trader Offer</h3>
+    <h3>Trade Offer</h3>
     <div id="traderOffer"></div>
+
+    <button onclick="acceptTrade()">Accept Trade</button>
   </div>
 
 </div>
 
-<!-- IMPORTANT: JS LINK -->
+<p id="result"></p>
+
 <script src="script.js"></script>
 
 </body>
