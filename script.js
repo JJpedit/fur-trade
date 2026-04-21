@@ -1,169 +1,136 @@
 
-// ---------------- PLAYER ----------------
-let playerInventory = [];
-let playerOffer = [];
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-// ---------------- AI TRADERS ----------------
-let traders = [
-  { id: 1, name: "Métis Trader", personality: "fair", wants: [], offer: [] },
-  { id: 2, name: "European Merchant", personality: "greedy", wants: [], offer: [] },
-  { id: 3, name: "Hudson Agent", personality: "strict", wants: [], offer: [] }
-];
+// ---------------- PLAYER ----------------
+let player = { x: 100, y: 100, speed: 3 };
+
+// ---------------- GAME STATE ----------------
+let state = "WORLD"; // WORLD or TRADE
+
+let inventory = [];
+let money = 0;
 
 let activeTrader = null;
 
 // ---------------- ITEMS ----------------
-const items = {
-  wolf: { name: "Wolf Pelt", value: 10, img: "https://upload.wikimedia.org/wikipedia/commons/6/6b/Wolf_pelt.jpg" },
-  beaver: { name: "Beaver Pelt", value: 8, img: "https://upload.wikimedia.org/wikipedia/commons/1/1c/Beaver_pelt.jpg" },
-  fox: { name: "Fox Pelt", value: 6, img: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Fox_pelt.jpg" }
-};
+const items = [
+  { name: "Wolf Pelt", value: 10 },
+  { name: "Beaver Pelt", value: 8 },
+  { name: "Fox Pelt", value: 6 }
+];
 
-// ---------------- START ----------------
-for (let i = 0; i < 2; i++) {
-  playerInventory.push(items.wolf);
-}
+// ---------------- TRADERS ----------------
+let traders = [
+  { name: "Métis Trader", x: 600, y: 200, greed: 0.2 },
+  { name: "European Merchant", x: 300, y: 350, greed: 0.6 }
+];
 
-// ---------------- HUNT ----------------
-function hunt(type) {
-  playerInventory.push(items[type]);
-  document.getElementById("result").innerText =
-    "You hunted a " + items[type].name;
+// ---------------- INPUT ----------------
+document.addEventListener("keydown", (e) => {
 
-  render();
-}
-
-// ---------------- INVENTORY ----------------
-function toggleInventory() {
-  let panel = document.getElementById("inventoryPanel");
-  panel.style.display = panel.style.display === "none" ? "block" : "none";
-  render();
-}
-
-// ---------------- SELECT TRADER ----------------
-function selectTrader(id) {
-  activeTrader = traders.find(t => t.id === id);
-
-  generateTraderOffer(activeTrader);
-
-  document.getElementById("result").innerText =
-    activeTrader.name + " wants to trade.";
-
-  render();
-}
-
-// ---------------- AI OFFER GENERATION ----------------
-function generateTraderOffer(trader) {
-  trader.offer = [];
-  trader.wants = [];
-
-  let keys = Object.keys(items);
-
-  for (let i = 0; i < 2; i++) {
-    let item = items[keys[Math.floor(Math.random() * keys.length)]];
-    trader.wants.push(item);
+  if (state === "WORLD") {
+    if (e.key === "w") player.y -= player.speed;
+    if (e.key === "s") player.y += player.speed;
+    if (e.key === "a") player.x -= player.speed;
+    if (e.key === "d") player.x += player.speed;
   }
 
-  for (let i = 0; i < 2; i++) {
-    let item = items[keys[Math.floor(Math.random() * keys.length)]];
-    trader.offer.push(item);
-  }
-}
+});
 
-// ---------------- TRADE LOGIC ----------------
-function makeTrade() {
-  if (!activeTrader) return;
-
-  let playerValue = total(playerOffer);
-  let traderValue = total(activeTrader.offer);
-
-  let fairness = playerValue - traderValue;
-
-  let accepted = aiDecision(activeTrader, fairness);
-
-  if (accepted) {
-    playerInventory.push(...activeTrader.offer);
-    activeTrader = null;
-    playerOffer = [];
-
-    document.getElementById("result").innerText =
-      "Trade completed with AI trader.";
-  } else {
-    document.getElementById("result").innerText =
-      "AI rejected the trade.";
-  }
-
-  render();
-}
-
-// ---------------- AI PERSONALITY ----------------
-function aiDecision(trader, diff) {
-  if (trader.personality === "fair") {
-    return diff >= -2;
-  }
-
-  if (trader.personality === "greedy") {
-    return diff >= -5;
-  }
-
-  if (trader.personality === "strict") {
-    return diff >= 0;
-  }
-
-  return false;
-}
-
-// ---------------- ADD TO OFFER ----------------
-function addToOffer(i) {
-  playerOffer.push(playerInventory[i]);
-  playerInventory.splice(i, 1);
-  render();
-}
-
-// ---------------- TOTAL ----------------
-function total(arr) {
-  return arr.reduce((sum, i) => sum + i.value, 0);
-}
-
-// ---------------- RENDER ----------------
-function render() {
-
-  // player inventory
-  let inv = document.getElementById("playerInv");
-  inv.innerHTML = "";
-  playerInventory.forEach((item, i) => {
-    let el = document.createElement("div");
-    el.innerHTML = item.name + " ($" + item.value + ")";
-    el.onclick = () => addToOffer(i);
-    inv.appendChild(el);
-  });
-
-  // player offer
-  let po = document.getElementById("playerOffer");
-  po.innerHTML = playerOffer.map(i => i.name).join(", ");
-
-  // traders list
-  let tr = document.getElementById("traders");
-  tr.innerHTML = "";
+// ---------------- WORLD UPDATE ----------------
+function updateWorld() {
 
   traders.forEach(t => {
-    let el = document.createElement("div");
-    el.className = "item";
-    el.innerHTML = `
-      <b>${t.name}</b><br>
-      Personality: ${t.personality}<br>
-      <button onclick="selectTrader(${t.id})">Trade</button>
-    `;
-    tr.appendChild(el);
+    let dist = Math.hypot(player.x - t.x, player.y - t.y);
+
+    if (dist < 40) {
+      enterTrade(t);
+    }
   });
-
-  // trader offer
-  let to = document.getElementById("traderOffer");
-  to.innerHTML = activeTrader ? activeTrader.offer.map(i => i.name).join(", ") : "No trader selected";
-
-  document.getElementById("info").innerText =
-    "Select a trader and build your offer.";
 
 }
 
-render();
+// ---------------- ENTER TRADE ----------------
+function enterTrade(trader) {
+  state = "TRADE";
+  activeTrader = trader;
+
+  document.getElementById("tradeUI").style.display = "block";
+
+  document.getElementById("tradeText").innerText =
+    trader.name + " wants to trade. They are " +
+    (trader.greed < 0.4 ? "fair" : "greedy");
+}
+
+// ---------------- OFFER ITEM ----------------
+function offerItem() {
+  if (inventory.length === 0) return;
+
+  inventory.pop();
+
+  document.getElementById("tradeText").innerText =
+    "You offered an item...";
+}
+
+// ---------------- TRADE AI ----------------
+function acceptTrade() {
+
+  let chance = Math.random();
+
+  let successChance =
+    activeTrader.greed < 0.4 ? 0.8 : 0.4;
+
+  if (chance < successChance) {
+    money += 10;
+    document.getElementById("ui").innerText =
+      "Trade successful! Money: " + money;
+  } else {
+    document.getElementById("ui").innerText =
+      "Trade rejected.";
+  }
+
+  exitTrade();
+}
+
+// ---------------- EXIT ----------------
+function exitTrade() {
+  state = "WORLD";
+  activeTrader = null;
+
+  document.getElementById("tradeUI").style.display = "none";
+}
+
+// ---------------- DRAW ----------------
+function draw() {
+
+  ctx.clearRect(0,0,800,450);
+
+  // player
+  ctx.fillStyle = "blue";
+  ctx.fillRect(player.x, player.y, 20, 20);
+
+  // traders
+  traders.forEach(t => {
+    ctx.fillStyle = "red";
+    ctx.fillRect(t.x, t.y, 20, 20);
+  });
+
+}
+
+// ---------------- LOOP ----------------
+function loop() {
+
+  if (state === "WORLD") {
+    updateWorld();
+  }
+
+  draw();
+
+  document.getElementById("info").innerText =
+    "Money: $" + money + " | Inventory: " + inventory.length;
+
+  requestAnimationFrame(loop);
+}
+
+loop();
