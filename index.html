@@ -2,34 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Fur Trade Simulation</title>
+  <title>Fur Trade Hunting Game</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<h1>Fur Trade Simulation</h1>
+<h1>Fur Trade Hunting Game</h1>
 
 <h2 id="info"></h2>
 
 <div class="container">
 
-  <!-- HUNTING AREA -->
+  <!-- HUNTING MAP -->
   <div class="box">
-    <h2>Hunting Grounds</h2>
+    <h2>Hunting Area</h2>
 
     <div class="hunt-area">
 
-      <img onclick="hunt('wolf')" src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Wolf_pelt.jpg">
-      <img onclick="hunt('beaver')" src="https://upload.wikimedia.org/wikipedia/commons/1/1c/Beaver_pelt.jpg">
-      <img onclick="hunt('fox')" src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Fox_pelt.jpg">
+      <img onclick="hunt('wolf')" src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Wolf_pelt.jpg" title="Wolf">
+      <img onclick="hunt('beaver')" src="https://upload.wikimedia.org/wikipedia/commons/1/1c/Beaver_pelt.jpg" title="Beaver">
+      <img onclick="hunt('fox')" src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Fox_pelt.jpg" title="Fox">
 
     </div>
 
-    <p>Click an animal to hunt</p>
+    <p>Click an animal to hunt it and get pelts</p>
   </div>
 
-  <!-- MÉTIS PLAYER -->
+  <!-- PLAYER -->
   <div class="box">
     <h2>Métis Inventory</h2>
     <div id="playerInv"></div>
@@ -40,7 +40,7 @@
     <button onclick="startTrade()">Offer Trade</button>
   </div>
 
-  <!-- EUROPEAN TRADER -->
+  <!-- TRADER -->
   <div class="box">
     <h2>European Trader Inventory</h2>
     <div id="traderInv"></div>
@@ -55,7 +55,6 @@
 
 <p id="result"></p>
 
-<!-- CREDIT -->
 <footer style="margin-top:20px; font-size:14px;">
   Made by Hudson and Jaittran
 </footer>
