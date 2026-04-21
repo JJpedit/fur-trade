@@ -1,114 +1,214 @@
 
+// ================= CANVAS =================
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-// ---------------- PLAYER ----------------
-let player = { x: 100, y: 100, speed: 3 };
+// ================= WORLD =================
+const world = {
+  width: 2000,
+  height: 1200
+};
 
-// ---------------- GAME STATE ----------------
-let state = "WORLD"; // WORLD or TRADE
+// ================= CAMERA =================
+let camera = {
+  x: 0,
+  y: 0
+};
 
+// ================= PLAYER =================
+let player = {
+  x: 200,
+  y: 200,
+  size: 20,
+  speed: 3,
+  vx: 0,
+  vy: 0
+};
+
+// ================= STATE =================
+let state = "WORLD"; // WORLD / TRADE
+
+// ================= INVENTORY =================
 let inventory = [];
 let money = 0;
 
+// ================= KEYS =================
+let keys = {};
+
+document.addEventListener("keydown", (e) => keys[e.key] = true);
+document.addEventListener("keyup", (e) => keys[e.key] = false);
+
+// ================= ITEMS =================
+const items = {
+  wolf: { name: "Wolf Pelt", value: 12 },
+  beaver: { name: "Beaver Pelt", value: 8 },
+  fox: { name: "Fox Pelt", value: 6 }
+};
+
+// ================= ANIMALS (AI) =================
+let animals = [];
+
+function spawnAnimals() {
+  for (let i = 0; i < 20; i++) {
+    const types = ["wolf", "beaver", "fox"];
+    let t = types[Math.floor(Math.random() * types.length)];
+
+    animals.push({
+      type: t,
+      x: Math.random() * world.width,
+      y: Math.random() * world.height,
+      alive: true,
+      vx: (Math.random() - 0.5) * 1,
+      vy: (Math.random() - 0.5) * 1
+    });
+  }
+}
+
+// ================= TRADERS =================
+let traders = [];
+
+function spawnTraders() {
+  traders = [
+    { name: "Métis Trader", x: 500, y: 500, vx: 0.5, vy: 0.3 },
+    { name: "European Merchant", x: 1200, y: 600, vx: -0.4, vy: 0.2 },
+    { name: "Hudson Agent", x: 900, y: 300, vx: 0.3, vy: -0.3 }
+  ];
+}
+
 let activeTrader = null;
 
-// ---------------- ITEMS ----------------
-const items = [
-  { name: "Wolf Pelt", value: 10 },
-  { name: "Beaver Pelt", value: 8 },
-  { name: "Fox Pelt", value: 6 }
-];
+// ================= INIT =================
+spawnAnimals();
+spawnTraders();
 
-// ---------------- TRADERS ----------------
-let traders = [
-  { name: "Métis Trader", x: 600, y: 200, greed: 0.2 },
-  { name: "European Merchant", x: 300, y: 350, greed: 0.6 }
-];
+// ================= PLAYER UPDATE =================
+function updatePlayer() {
 
-// ---------------- INPUT ----------------
-document.addEventListener("keydown", (e) => {
+  if (state !== "WORLD") return;
 
-  if (state === "WORLD") {
-    if (e.key === "w") player.y -= player.speed;
-    if (e.key === "s") player.y += player.speed;
-    if (e.key === "a") player.x -= player.speed;
-    if (e.key === "d") player.x += player.speed;
-  }
+  if (keys["w"]) player.vy = -player.speed;
+  else if (keys["s"]) player.vy = player.speed;
+  else player.vy = 0;
 
-});
+  if (keys["a"]) player.vx = -player.speed;
+  else if (keys["d"]) player.vx = player.speed;
+  else player.vx = 0;
 
-// ---------------- WORLD UPDATE ----------------
-function updateWorld() {
+  player.x += player.vx;
+  player.y += player.vy;
 
+  // world bounds
+  player.x = Math.max(0, Math.min(world.width, player.x));
+  player.y = Math.max(0, Math.min(world.height, player.y));
+}
+
+// ================= CAMERA FOLLOW =================
+function updateCamera() {
+  camera.x = player.x - canvas.width / 2;
+  camera.y = player.y - canvas.height / 2;
+}
+
+// ================= ANIMAL AI =================
+function updateAnimals() {
+  animals.forEach(a => {
+    if (!a.alive) return;
+
+    // wander
+    a.x += a.vx;
+    a.y += a.vy;
+
+    // bounce
+    if (a.x < 0 || a.x > world.width) a.vx *= -1;
+    if (a.y < 0 || a.y > world.height) a.vy *= -1;
+
+    // flee if player close
+    let dist = Math.hypot(player.x - a.x, player.y - a.y);
+
+    if (dist < 120) {
+      a.vx += (a.x - player.x) * 0.01;
+      a.vy += (a.y - player.y) * 0.01;
+    }
+  });
+}
+
+// ================= TRADER AI =================
+function updateTraders() {
   traders.forEach(t => {
+    t.x += t.vx;
+    t.y += t.vy;
+
+    if (t.x < 0 || t.x > world.width) t.vx *= -1;
+    if (t.y < 0 || t.y > world.height) t.vy *= -1;
+
     let dist = Math.hypot(player.x - t.x, player.y - t.y);
 
-    if (dist < 40) {
+    if (dist < 50 && keys["e"]) {
       enterTrade(t);
     }
   });
-
 }
 
-// ---------------- ENTER TRADE ----------------
+// ================= HUNT =================
+function hunt() {
+  animals.forEach(a => {
+    if (!a.alive) return;
+
+    let dist = Math.hypot(player.x - a.x, player.y - a.y);
+
+    if (dist < 40) {
+      inventory.push(items[a.type]);
+      a.alive = false;
+
+      document.getElementById("ui").innerText =
+        "Hunted " + items[a.type].name;
+    }
+  });
+}
+
+// ================= TRADE SYSTEM =================
 function enterTrade(trader) {
   state = "TRADE";
   activeTrader = trader;
 
-  document.getElementById("tradeUI").style.display = "block";
-
-  document.getElementById("tradeText").innerText =
-    trader.name + " wants to trade. They are " +
-    (trader.greed < 0.4 ? "fair" : "greedy");
+  document.getElementById("ui").innerText =
+    "Trading with " + trader.name;
 }
 
-// ---------------- OFFER ITEM ----------------
-function offerItem() {
+function acceptTrade() {
   if (inventory.length === 0) return;
 
-  inventory.pop();
+  let item = inventory.pop();
+  money += item.value;
 
-  document.getElementById("tradeText").innerText =
-    "You offered an item...";
-}
-
-// ---------------- TRADE AI ----------------
-function acceptTrade() {
-
-  let chance = Math.random();
-
-  let successChance =
-    activeTrader.greed < 0.4 ? 0.8 : 0.4;
-
-  if (chance < successChance) {
-    money += 10;
-    document.getElementById("ui").innerText =
-      "Trade successful! Money: " + money;
-  } else {
-    document.getElementById("ui").innerText =
-      "Trade rejected.";
-  }
+  document.getElementById("ui").innerText =
+    "Sold " + item.name + " for $" + item.value;
 
   exitTrade();
 }
 
-// ---------------- EXIT ----------------
 function exitTrade() {
   state = "WORLD";
   activeTrader = null;
-
-  document.getElementById("tradeUI").style.display = "none";
 }
 
-// ---------------- DRAW ----------------
+// ================= DRAW =================
 function draw() {
 
-  ctx.clearRect(0,0,800,450);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // player
-  ctx.fillStyle = "blue";
-  ctx.fillRect(player.x, player.y, 20, 20);
+  ctx.save();
+  ctx.translate(-camera.x, -camera.y);
+
+  // ground
+  ctx.fillStyle = "#6fbf73";
+  ctx.fillRect(0, 0, world.width, world.height);
+
+  // animals
+  animals.forEach(a => {
+    if (!a.alive) return;
+    ctx.fillStyle = "brown";
+    ctx.fillRect(a.x, a.y, 15, 15);
+  });
 
   // traders
   traders.forEach(t => {
@@ -116,19 +216,32 @@ function draw() {
     ctx.fillRect(t.x, t.y, 20, 20);
   });
 
+  // player
+  ctx.fillStyle = "blue";
+  ctx.fillRect(player.x, player.y, player.size, player.size);
+
+  ctx.restore();
 }
 
-// ---------------- LOOP ----------------
+// ================= LOOP =================
 function loop() {
 
+  updatePlayer();
+  updateCamera();
+
   if (state === "WORLD") {
-    updateWorld();
+    updateAnimals();
+    updateTraders();
+
+    if (keys[" "]) hunt();
   }
 
   draw();
 
   document.getElementById("info").innerText =
-    "Money: $" + money + " | Inventory: " + inventory.length;
+    "Money: $" + money +
+    " | Inventory: " + inventory.length +
+    " | State: " + state;
 
   requestAnimationFrame(loop);
 }
