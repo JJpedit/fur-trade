@@ -1,44 +1,150 @@
-
 let playerInventory = [];
 let traderInventory = [];
 
 let playerOffer = [];
 let traderOffer = [];
 
-// ITEMS
-const items = {
-  wolf: {
+let playerMoney = 0;
+let traderMoney = 0;
+
+let day = 1;
+
+// ---------------- ITEM DATABASE ----------------
+const baseItems = [
+  {
+    key: "wolf",
     name: "Wolf Pelt",
-    value: 10,
+    baseValue: 12,
     img: "https://upload.wikimedia.org/wikipedia/commons/6/6b/Wolf_pelt.jpg"
   },
-  beaver: {
+  {
+    key: "beaver",
     name: "Beaver Pelt",
-    value: 8,
+    baseValue: 8,
     img: "https://upload.wikimedia.org/wikipedia/commons/1/1c/Beaver_pelt.jpg"
   },
-  fox: {
+  {
+    key: "fox",
     name: "Fox Pelt",
-    value: 6,
+    baseValue: 6,
     img: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Fox_pelt.jpg"
   }
-};
+];
 
-// START INVENTORY
-for (let i = 0; i < 2; i++) {
-  playerInventory.push(items.wolf);
-  traderInventory.push(items.beaver);
+// ---------------- AI ECONOMY ----------------
+function getMarketValue(item) {
+  let fluctuation = Math.floor(Math.random() * 5 - 2); // -2 to +2
+  return Math.max(1, item.baseValue + fluctuation);
 }
 
-// ---------------- HUNT SYSTEM ----------------
-function hunt(type) {
-  let item = items[type];
+// ---------------- INITIAL SETUP ----------------
+for (let i = 0; i < 3; i++) {
+  playerInventory.push(spawnAnimal());
+  traderInventory.push(spawnAnimal());
+}
 
-  playerInventory.push(item);
+function spawnAnimal() {
+  let item = baseItems[Math.floor(Math.random() * baseItems.length)];
+  return { ...item, value: getMarketValue(item) };
+}
+
+// ---------------- HUNTING SYSTEM ----------------
+function hunt(type) {
+  let item = baseItems.find(i => i.key === type);
+
+  let hunted = {
+    ...item,
+    value: getMarketValue(item)
+  };
+
+  playerInventory.push(hunted);
 
   document.getElementById("result").innerText =
-    "You hunted a " + item.name;
+    "You hunted a " + hunted.name;
 
+  render();
+}
+
+// ---------------- AI TRADER BRAIN ----------------
+function aiThink() {
+  let playerValue = total(playerOffer);
+  let traderValue = total(traderOffer);
+
+  let fairness = playerValue - traderValue;
+
+  // AI personality system
+  let greed = Math.random(); // 0-1
+
+  if (fairness >= -2 && fairness <= 2) return true;
+
+  if (fairness > 2) return true; // trader benefits
+
+  if (fairness < -2) {
+    return greed > 0.6 ? true : false; // sometimes accepts bad deal
+  }
+
+  return false;
+}
+
+// ---------------- TRADE ----------------
+function acceptTrade() {
+  if (playerOffer.length === 0 || traderOffer.length === 0) {
+    document.getElementById("result").innerText =
+      "Both sides must place items first.";
+    return;
+  }
+
+  let accepted = aiThink();
+
+  if (accepted) {
+    playerInventory.push(...traderOffer);
+    traderInventory.push(...playerOffer);
+
+    let p = total(playerOffer);
+    let t = total(traderOffer);
+
+    playerMoney += t;
+    traderMoney += p;
+
+    playerOffer = [];
+    traderOffer = [];
+
+    document.getElementById("result").innerText =
+      "Trade accepted by AI trader.";
+  } else {
+    document.getElementById("result").innerText =
+      "AI trader rejected the offer.";
+  }
+
+  nextDay();
+  render();
+}
+
+// ---------------- DAY SYSTEM ----------------
+function nextDay() {
+  day++;
+
+  // restock world
+  if (Math.random() > 0.5) {
+    traderInventory.push(spawnAnimal());
+  }
+}
+
+// ---------------- TOTAL VALUE ----------------
+function total(arr) {
+  return arr.reduce((sum, i) => sum + i.value, 0);
+}
+
+// ---------------- INVENTORY MOVE ----------------
+function addPlayer(i) {
+  playerOffer.push(playerInventory[i]);
+  playerInventory.splice(i, 1);
+  render();
+}
+
+function addTrader(i) {
+  traderOffer.push(traderInventory[i]);
+  traderInventory.splice(i, 1);
   render();
 }
 
@@ -50,10 +156,14 @@ function render() {
   show("traderOffer", traderOffer);
 
   document.getElementById("info").innerText =
-    "Click animals to hunt. Build trade offers carefully.";
+    "Day " + day +
+    " | Your Money: " + playerMoney +
+    " | AI Money: " + traderMoney;
+
+  checkWin();
 }
 
-// ---------------- SHOW ITEMS ----------------
+// ---------------- DISPLAY ----------------
 function show(id, arr, clickFn) {
   let div = document.getElementById(id);
   div.innerHTML = "";
@@ -69,55 +179,22 @@ function show(id, arr, clickFn) {
     `;
 
     if (clickFn) el.onclick = () => clickFn(i);
+
     div.appendChild(el);
   });
 }
 
-// ---------------- MOVE TO OFFER ----------------
-function addPlayer(i) {
-  playerOffer.push(playerInventory[i]);
-  playerInventory.splice(i, 1);
-  render();
-}
-
-function addTrader(i) {
-  traderOffer.push(traderInventory[i]);
-  traderInventory.splice(i, 1);
-  render();
-}
-
-// ---------------- TRADE ----------------
-function startTrade() {
-  document.getElementById("result").innerText =
-    "Trade prepared. Awaiting acceptance.";
-}
-
-function acceptTrade() {
-  let p = total(playerOffer);
-  let t = total(traderOffer);
-
-  let diff = Math.abs(p - t);
-
-  if (diff <= 2) {
-    playerInventory.push(...traderOffer);
-    traderInventory.push(...playerOffer);
-
-    playerOffer = [];
-    traderOffer = [];
-
+// ---------------- WIN CONDITION ----------------
+function checkWin() {
+  if (playerMoney >= 100) {
     document.getElementById("result").innerText =
-      "Trade accepted and completed.";
-  } else {
-    document.getElementById("result").innerText =
-      "Trade rejected (unfair value).";
+      "YOU DOMINATE THE FUR TRADE ECONOMY!";
   }
 
-  render();
-}
-
-// ---------------- TOTAL ----------------
-function total(arr) {
-  return arr.reduce((sum, i) => sum + i.value, 0);
+  if (traderMoney >= 100) {
+    document.getElementById("result").innerText =
+      "AI CONTROLS THE MARKET!";
+  }
 }
 
 render();
