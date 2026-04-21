@@ -1,23 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Fur Trade World</title>
+  <title>Fur Trade Open World</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<h2 id="ui"></h2>
-<h3 id="info"></h3>
+<div id="hud">
+  <h2>Fur Trade World</h2>
+  <p id="ui">Loading...</p>
+  <p id="info"></p>
 
-<canvas id="game" width="800" height="450"></canvas>
+  <p class="controls">
+    WASD = Move | SPACE = Hunt | E = Trade
+  </p>
+</div>
 
-<div id="tradeUI" style="display:none;">
-  <h3>Trading Phase</h3>
-  <p id="tradeText"></p>
+<canvas id="game" width="900" height="500"></canvas>
 
-  <button onclick="offerItem()">Offer Item</button>
+<!-- TRADE POPUP -->
+<div id="tradeUI">
+  <h3 id="tradeTitle"></h3>
+  <p>Press ACCEPT to sell items</p>
+
   <button onclick="acceptTrade()">Accept Trade</button>
   <button onclick="exitTrade()">Leave</button>
 </div>
