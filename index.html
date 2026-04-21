@@ -1,38 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Fur Trade Game</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<h1>Fur Trade</h1>
+<h1>Fur Trade Simulator</h1>
 
 <h2 id="valueDisplay"></h2>
 
 <div class="container">
 
-  <!-- PLAYER INVENTORY -->
+  <!-- PLAYER SIDE -->
   <div class="box">
     <h2>Your Inventory</h2>
     <div id="playerInv"></div>
 
-    <h3>Your Offer</h3>
+    <h3>Your Trade Offer</h3>
     <div id="playerOffer"></div>
+
+    <button onclick="hunt()">Hunt</button>
   </div>
 
-  <!-- TRADE AREA -->
+  <!-- CENTER CONTROL -->
   <div class="box">
-    <h2>Trade</h2>
+    <h2>Trade Controls</h2>
 
-    <button onclick="attemptTrade()">Accept Trade</button>
+    <button onclick="attemptTrade()">Offer Trade</button>
     <button onclick="resetTrade()">Reset Trade</button>
 
     <p id="result"></p>
   </div>
 
-  <!-- TRADER INVENTORY -->
+  <!-- TRADER SIDE -->
   <div class="box">
     <h2>Trader Inventory</h2>
     <div id="traderInv"></div>
@@ -43,7 +46,7 @@
 
 </div>
 
-<!-- JS LINK -->
+<!-- IMPORTANT: JS LINK -->
 <script src="script.js"></script>
 
 </body>
