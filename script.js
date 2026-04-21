@@ -40,7 +40,7 @@ function randomItem() {
 }
 
 function total(arr) {
-  return arr.reduce((sum, item) => sum + item.value, 0);
+  return (arr || []).reduce((sum, item) => sum + item.value, 0);
 }
 
 // ---------------- RENDER ----------------
@@ -59,7 +59,7 @@ function show(id, arr, clickFn) {
   let div = document.getElementById(id);
   div.innerHTML = "";
 
-  arr.forEach((item, i) => {
+  (arr || []).forEach((item, i) => {
     let el = document.createElement("div");
     el.className = "item";
 
@@ -123,9 +123,8 @@ function attemptTrade() {
     document.getElementById("result").innerText =
       "✅ Trade accepted!";
   } else {
-    // REJECT TRADE
     document.getElementById("result").innerText =
-      "❌ Trade rejected (value too unfair)";
+      "❌ Trade rejected (too unfair)";
   }
 
   render();
