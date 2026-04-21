@@ -1,43 +1,69 @@
-let furs = 0;
-let money = 0;
-let turn = 1;
+let playerInventory = [
+  { name: "Fur", img: "https://i.imgur.com/8QfQF5F.png" },
+  { name: "Fur", img: "https://i.imgur.com/8QfQF5F.png" },
+  { name: "Food", img: "https://i.imgur.com/6X4ZQ9F.png" }
+];
 
-function updateStats() {
-  document.getElementById("stats").innerText =
-    "Turn: " + turn + " | Furs: " + furs + " | Money: $" + money;
+let npcInventory = [
+  { name: "Tool", img: "https://i.imgur.com/3Xj3Z9E.png" },
+  { name: "Food", img: "https://i.imgur.com/6X4ZQ9F.png" }
+];
+
+let playerOffer = [];
+let npcOffer = [];
+
+function render() {
+  displayItems("playerInventory", playerInventory, addToPlayerOffer);
+  displayItems("npcInventory", npcInventory, addToNpcOffer);
+  displayItems("playerOffer", playerOffer);
+  displayItems("npcOffer", npcOffer);
 }
 
-function log(message) {
-  document.getElementById("log").innerText = message;
+function displayItems(id, items, clickFn) {
+  let div = document.getElementById(id);
+  div.innerHTML = "";
+
+  items.forEach((item, index) => {
+    let el = document.createElement("div");
+    el.className = "item";
+
+    el.innerHTML = `<img src="${item.img}"><br>${item.name}`;
+
+    if (clickFn) {
+      el.onclick = () => clickFn(index);
+    }
+
+    div.appendChild(el);
+  });
 }
 
-function hunt() {
-  let gained = Math.floor(Math.random() * 5) + 1;
-  furs += gained;
-  log("You hunted and got " + gained + " furs.");
-  updateStats();
+function addToPlayerOffer(index) {
+  playerOffer.push(playerInventory[index]);
+  playerInventory.splice(index, 1);
+  render();
 }
 
-function trade() {
-  if (furs === 0) {
-    log("No furs to trade!");
+function addToNpcOffer(index) {
+  npcOffer.push(npcInventory[index]);
+  npcInventory.splice(index, 1);
+  render();
+}
+
+function acceptTrade() {
+  if (playerOffer.length === 0 || npcOffer.length === 0) {
+    document.getElementById("status").innerText = "Trade must have items!";
     return;
   }
 
-  let price = Math.floor(Math.random() * 10) + 5;
-  let earned = furs * price;
+  // swap items
+  playerInventory.push(...npcOffer);
+  npcInventory.push(...playerOffer);
 
-  money += earned;
-  log("You traded " + furs + " furs for $" + earned + ".");
-  furs = 0;
+  playerOffer = [];
+  npcOffer = [];
 
-  updateStats();
+  document.getElementById("status").innerText = "✅ Trade Complete!";
+  render();
 }
 
-function nextTurn() {
-  turn++;
-  log("New turn started.");
-  updateStats();
-}
-
-updateStats();
+render();
