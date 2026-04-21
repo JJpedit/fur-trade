@@ -4,45 +4,47 @@
   <title>Fur Trade Game</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <h1>Fur Trade</h1>
+
+<h2 id="valueDisplay"></h2>
 
 <div class="container">
 
   <!-- PLAYER INVENTORY -->
   <div class="box">
     <h2>Your Inventory</h2>
-    <div id="playerInventory"></div>
+    <div id="playerInv"></div>
+
+    <h3>Your Offer</h3>
+    <div id="playerOffer"></div>
   </div>
 
   <!-- TRADE AREA -->
   <div class="box">
     <h2>Trade</h2>
-    <div class="trade-box">
-      <div>
-        <h3>Your Offer</h3>
-        <div id="playerOffer"></div>
-      </div>
 
-      <div>
-        <h3>Trader Offer</h3>
-        <div id="npcOffer"></div>
-      </div>
-    </div>
+    <button onclick="attemptTrade()">Accept Trade</button>
+    <button onclick="resetTrade()">Reset Trade</button>
 
-    <button onclick="acceptTrade()">Accept Trade</button>
-    <p id="status"></p>
+    <p id="result"></p>
   </div>
 
-  <!-- NPC INVENTORY -->
+  <!-- TRADER INVENTORY -->
   <div class="box">
     <h2>Trader Inventory</h2>
-    <div id="npcInventory"></div>
+    <div id="traderInv"></div>
+
+    <h3>Trader Offer</h3>
+    <div id="traderOffer"></div>
   </div>
 
 </div>
 
+<!-- JS LINK -->
 <script src="script.js"></script>
+
 </body>
 </html>
