@@ -7,21 +7,22 @@ let traderOffer = [];
 let playerScore = 0;
 let traderScore = 0;
 
-let phase = "HUNT"; // HUNT → TRADE → RESET
+let phase = "HUNT"; // HUNT → TRADE → HUNT
 
 const items = [
   { name: "Wolf Pelt", value: 10, img: "https://upload.wikimedia.org/wikipedia/commons/6/6b/Wolf_pelt.jpg" },
   { name: "Beaver Pelt", value: 8, img: "https://upload.wikimedia.org/wikipedia/commons/1/1c/Beaver_pelt.jpg" },
   { name: "Fox Pelt", value: 6, img: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Fox_pelt.jpg" },
-  { name: "Food", value: 3, img: "https://upload.wikimedia.org/wikipedia/commons/0/0b/Meat_icon.png" }
+  { name: "Food Supply", value: 3, img: "https://upload.wikimedia.org/wikipedia/commons/0/0b/Meat_icon.png" }
 ];
 
-// INIT
+// START GAME
 for (let i = 0; i < 3; i++) {
   playerInventory.push(randomItem());
   traderInventory.push(randomItem());
 }
 
+// ---------------- HELPERS ----------------
 function randomItem() {
   return items[Math.floor(Math.random() * items.length)];
 }
@@ -38,7 +39,9 @@ function render() {
   show("traderOffer", traderOffer);
 
   document.getElementById("valueDisplay").innerText =
-    `PHASE: ${phase} | YOU: ${playerScore} | TRADER: ${traderScore}`;
+    "Phase: " + phase +
+    " | Player Score: " + playerScore +
+    " | Trader Score: " + traderScore;
 }
 
 // ---------------- SHOW ITEMS ----------------
@@ -53,7 +56,7 @@ function show(id, arr, clickFn) {
     el.innerHTML = `
       <img src="${item.img}">
       <br>${item.name}
-      <br>💰 ${item.value}
+      <br>Value: ${item.value}
     `;
 
     if (clickFn) el.onclick = () => clickFn(i);
@@ -61,7 +64,7 @@ function show(id, arr, clickFn) {
   });
 }
 
-// ---------------- HUNT PHASE ----------------
+// ---------------- HUNT SYSTEM ----------------
 function hunt() {
   if (phase !== "HUNT") return;
 
@@ -69,19 +72,18 @@ function hunt() {
   playerInventory.push(found);
 
   document.getElementById("result").innerText =
-    `🐺 You hunted: ${found.name}`;
+    "You hunted and found: " + found.name;
 
   phase = "TRADE";
   render();
 }
 
-// ---------------- TRADE CLICK ----------------
+// ---------------- TRADE SELECTION ----------------
 function addPlayer(i) {
   if (phase !== "TRADE") return;
 
   playerOffer.push(playerInventory[i]);
   playerInventory.splice(i, 1);
-
   render();
 }
 
@@ -90,48 +92,56 @@ function addTrader(i) {
 
   traderOffer.push(traderInventory[i]);
   traderInventory.splice(i, 1);
-
   render();
 }
 
 // ---------------- NPC AI ----------------
-function traderDecision() {
+function traderAccepts() {
   let p = total(playerOffer);
   let t = total(traderOffer);
 
-  if (p >= t - 2) {
-    return Math.random() > 0.2; // mostly accepts fair trades
-  } else {
-    return Math.random() > 0.7; // usually rejects bad trades
+  let fairness = p - t;
+
+  if (fairness >= -2 && fairness <= 2) {
+    return Math.random() > 0.2;
   }
+
+  if (fairness > 2) {
+    return true; // trader benefits
+  }
+
+  return Math.random() > 0.6; // unfair deal usually rejected
 }
 
 // ---------------- TRADE ----------------
 function attemptTrade() {
   if (phase !== "TRADE") return;
 
-  let npcAccept = traderDecision();
+  if (playerOffer.length === 0 || traderOffer.length === 0) {
+    document.getElementById("result").innerText =
+      "Both sides must place items first.";
+    return;
+  }
 
-  let dialogue = npcAccept
-    ? "🤝 Trader: 'Fair deal... I accept.'"
-    : "❌ Trader: 'This is not worth it.'";
+  let accepted = traderAccepts();
 
-  document.getElementById("result").innerText = dialogue;
-
-  if (npcAccept) {
+  if (accepted) {
     playerInventory.push(...traderOffer);
     traderInventory.push(...playerOffer);
 
-    let p = total(playerOffer);
-    let t = total(traderOffer);
-
-    playerScore += t;
-    traderScore += p;
+    playerScore += total(traderOffer);
+    traderScore += total(playerOffer);
 
     playerOffer = [];
     traderOffer = [];
 
+    document.getElementById("result").innerText =
+      "Trade accepted. Deal completed.";
+
     phase = "HUNT";
+  } else {
+    document.getElementById("result").innerText =
+      "Trade rejected by trader.";
   }
 
   render();
@@ -147,19 +157,22 @@ function resetTrade() {
 
   phase = "HUNT";
 
-  document.getElementById("result").innerText = "🔄 Reset complete";
+  document.getElementById("result").innerText =
+    "Trade reset.";
 
   render();
 }
 
-// ---------------- WIN ----------------
+// ---------------- WIN CHECK ----------------
 function checkWin() {
   if (playerScore >= 50) {
-    document.getElementById("result").innerText = "🏆 YOU DOMINATE THE FUR TRADE!";
+    document.getElementById("result").innerText =
+      "Player wins the fur trade economy.";
   }
 
   if (traderScore >= 50) {
-    document.getElementById("result").innerText = "💀 TRADER CONTROLS THE MARKET!";
+    document.getElementById("result").innerText =
+      "Trader dominates the market.";
   }
 }
 
