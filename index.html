@@ -1,22 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
   <title>Fur Trade Game</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>Fur Trade Game</h1>
+<h1>Fur Trade</h1>
 
-<div id="game">
-  <p id="stats"></p>
+<div class="container">
 
-  <button onclick="hunt()">Hunt (Get Furs)</button>
-  <button onclick="trade()">Trade Furs</button>
-  <button onclick="nextTurn()">Next Turn</button>
+  <!-- PLAYER INVENTORY -->
+  <div class="box">
+    <h2>Your Inventory</h2>
+    <div id="playerInventory"></div>
+  </div>
 
-  <p id="log"></p>
+  <!-- TRADE AREA -->
+  <div class="box">
+    <h2>Trade</h2>
+    <div class="trade-box">
+      <div>
+        <h3>Your Offer</h3>
+        <div id="playerOffer"></div>
+      </div>
+
+      <div>
+        <h3>Trader Offer</h3>
+        <div id="npcOffer"></div>
+      </div>
+    </div>
+
+    <button onclick="acceptTrade()">Accept Trade</button>
+    <p id="status"></p>
+  </div>
+
+  <!-- NPC INVENTORY -->
+  <div class="box">
+    <h2>Trader Inventory</h2>
+    <div id="npcInventory"></div>
+  </div>
+
 </div>
 
 <script src="script.js"></script>
