@@ -4,64 +4,28 @@ let traderInventory = [];
 let playerOffer = [];
 let traderOffer = [];
 
-let playerAccepted = false;
-let traderAccepted = false;
-
 let playerScore = 0;
 let traderScore = 0;
 
-// ITEMS (values will change slightly over time)
-const baseItems = [
-  {
-    name: "Wolf Pelt",
-    value: 10,
-    img: "https://upload.wikimedia.org/wikipedia/commons/6/6b/Wolf_pelt.jpg"
-  },
-  {
-    name: "Beaver Pelt",
-    value: 8,
-    img: "https://upload.wikimedia.org/wikipedia/commons/1/1c/Beaver_pelt.jpg"
-  },
-  {
-    name: "Fox Pelt",
-    value: 6,
-    img: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Fox_pelt.jpg"
-  },
-  {
-    name: "Food",
-    value: 3,
-    img: "https://upload.wikimedia.org/wikipedia/commons/0/0b/Meat_icon.png"
-  }
+let phase = "HUNT"; // HUNT → TRADE → RESET
+
+const items = [
+  { name: "Wolf Pelt", value: 10, img: "https://upload.wikimedia.org/wikipedia/commons/6/6b/Wolf_pelt.jpg" },
+  { name: "Beaver Pelt", value: 8, img: "https://upload.wikimedia.org/wikipedia/commons/1/1c/Beaver_pelt.jpg" },
+  { name: "Fox Pelt", value: 6, img: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Fox_pelt.jpg" },
+  { name: "Food", value: 3, img: "https://upload.wikimedia.org/wikipedia/commons/0/0b/Meat_icon.png" }
 ];
 
-// clone items so we can modify values over time
-function getItems() {
-  return baseItems.map(item => {
-    return {
-      ...item,
-      value: item.value + Math.floor(Math.random() * 3 - 1) // -1 to +1 change
-    };
-  });
+// INIT
+for (let i = 0; i < 3; i++) {
+  playerInventory.push(randomItem());
+  traderInventory.push(randomItem());
 }
 
-// START GAME
-function init() {
-  let items = getItems();
-
-  for (let i = 0; i < 3; i++) {
-    playerInventory.push(randomItem(items));
-    traderInventory.push(randomItem(items));
-  }
-
-  render();
+function randomItem() {
+  return items[Math.floor(Math.random() * items.length)];
 }
 
-// RANDOM ITEM
-function randomItem(list = baseItems) {
-  return list[Math.floor(Math.random() * list.length)];
-}
-
-// TOTAL VALUE
 function total(arr) {
   return arr.reduce((sum, i) => sum + i.value, 0);
 }
@@ -74,12 +38,10 @@ function render() {
   show("traderOffer", traderOffer);
 
   document.getElementById("valueDisplay").innerText =
-    `Your Score: ${playerScore} | Trader Score: ${traderScore}`;
-
-  checkWinner();
+    `PHASE: ${phase} | YOU: ${playerScore} | TRADER: ${traderScore}`;
 }
 
-// DISPLAY ITEMS
+// ---------------- SHOW ITEMS ----------------
 function show(id, arr, clickFn) {
   let div = document.getElementById(id);
   div.innerHTML = "";
@@ -95,64 +57,81 @@ function show(id, arr, clickFn) {
     `;
 
     if (clickFn) el.onclick = () => clickFn(i);
-
     div.appendChild(el);
   });
 }
 
-// ---------------- PLAYER ACTIONS ----------------
+// ---------------- HUNT PHASE ----------------
+function hunt() {
+  if (phase !== "HUNT") return;
+
+  let found = randomItem();
+  playerInventory.push(found);
+
+  document.getElementById("result").innerText =
+    `🐺 You hunted: ${found.name}`;
+
+  phase = "TRADE";
+  render();
+}
+
+// ---------------- TRADE CLICK ----------------
 function addPlayer(i) {
+  if (phase !== "TRADE") return;
+
   playerOffer.push(playerInventory[i]);
   playerInventory.splice(i, 1);
-  playerAccepted = false;
-  traderAccepted = false;
+
   render();
 }
 
 function addTrader(i) {
+  if (phase !== "TRADE") return;
+
   traderOffer.push(traderInventory[i]);
   traderInventory.splice(i, 1);
-  playerAccepted = false;
-  traderAccepted = false;
+
   render();
 }
 
-// ---------------- ACCEPT SYSTEM ----------------
-function attemptTrade() {
-  playerAccepted = true;
+// ---------------- NPC AI ----------------
+function traderDecision() {
+  let p = total(playerOffer);
+  let t = total(traderOffer);
 
-  // NPC decides automatically
-  let playerVal = total(playerOffer);
-  let traderVal = total(traderOffer);
-
-  if (traderVal < playerVal - 2) {
-    traderAccepted = false;
+  if (p >= t - 2) {
+    return Math.random() > 0.2; // mostly accepts fair trades
   } else {
-    traderAccepted = Math.random() > 0.3; // NPC sometimes refuses
+    return Math.random() > 0.7; // usually rejects bad trades
   }
-
-  document.getElementById("result").innerText =
-    `You: ${playerAccepted ? "✔" : "❌"} | Trader: ${traderAccepted ? "✔" : "❌"}`;
-
-  resolveTrade();
 }
 
-// ---------------- TRADE LOGIC ----------------
-function resolveTrade() {
-  if (playerAccepted && traderAccepted) {
+// ---------------- TRADE ----------------
+function attemptTrade() {
+  if (phase !== "TRADE") return;
+
+  let npcAccept = traderDecision();
+
+  let dialogue = npcAccept
+    ? "🤝 Trader: 'Fair deal... I accept.'"
+    : "❌ Trader: 'This is not worth it.'";
+
+  document.getElementById("result").innerText = dialogue;
+
+  if (npcAccept) {
     playerInventory.push(...traderOffer);
     traderInventory.push(...playerOffer);
 
-    let pVal = total(playerOffer);
-    let tVal = total(traderOffer);
+    let p = total(playerOffer);
+    let t = total(traderOffer);
 
-    playerScore += tVal;
-    traderScore += pVal;
+    playerScore += t;
+    traderScore += p;
 
     playerOffer = [];
     traderOffer = [];
 
-    document.getElementById("result").innerText = "✅ Trade completed!";
+    phase = "HUNT";
   }
 
   render();
@@ -166,23 +145,24 @@ function resetTrade() {
   playerOffer = [];
   traderOffer = [];
 
-  playerAccepted = false;
-  traderAccepted = false;
+  phase = "HUNT";
 
-  document.getElementById("result").innerText = "🔄 Reset trade";
+  document.getElementById("result").innerText = "🔄 Reset complete";
 
   render();
 }
 
-// ---------------- WIN CONDITION ----------------
-function checkWinner() {
+// ---------------- WIN ----------------
+function checkWin() {
   if (playerScore >= 50) {
-    document.getElementById("result").innerText = "🏆 YOU WIN THE FUR TRADE!";
+    document.getElementById("result").innerText = "🏆 YOU DOMINATE THE FUR TRADE!";
   }
 
   if (traderScore >= 50) {
-    document.getElementById("result").innerText = "💀 TRADER DOMINATES THE MARKET!";
+    document.getElementById("result").innerText = "💀 TRADER CONTROLS THE MARKET!";
   }
 }
 
-init();
+setInterval(checkWin, 1000);
+
+render();
