@@ -7,13 +7,25 @@ let traderOffer = [];
 
 // ITEMS
 const items = {
-  wolf: { name: "Wolf Pelt", value: 10, img: "https://upload.wikimedia.org/wikipedia/commons/6/6b/Wolf_pelt.jpg" },
-  beaver: { name: "Beaver Pelt", value: 8, img: "https://upload.wikimedia.org/wikipedia/commons/1/1c/Beaver_pelt.jpg" },
-  fox: { name: "Fox Pelt", value: 6, img: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Fox_pelt.jpg" }
+  wolf: {
+    name: "Wolf Pelt",
+    value: 10,
+    img: "https://upload.wikimedia.org/wikipedia/commons/6/6b/Wolf_pelt.jpg"
+  },
+  beaver: {
+    name: "Beaver Pelt",
+    value: 8,
+    img: "https://upload.wikimedia.org/wikipedia/commons/1/1c/Beaver_pelt.jpg"
+  },
+  fox: {
+    name: "Fox Pelt",
+    value: 6,
+    img: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Fox_pelt.jpg"
+  }
 };
 
 // START INVENTORY
-for (let i = 0; i < 3; i++) {
+for (let i = 0; i < 2; i++) {
   playerInventory.push(items.wolf);
   traderInventory.push(items.beaver);
 }
@@ -38,10 +50,10 @@ function render() {
   show("traderOffer", traderOffer);
 
   document.getElementById("info").innerText =
-    "Métis vs European Trade System";
+    "Click animals to hunt. Build trade offers carefully.";
 }
 
-// ---------------- SHOW ----------------
+// ---------------- SHOW ITEMS ----------------
 function show(id, arr, clickFn) {
   let div = document.getElementById(id);
   div.innerHTML = "";
@@ -53,11 +65,10 @@ function show(id, arr, clickFn) {
     el.innerHTML = `
       <img src="${item.img}">
       <br>${item.name}
-      <br>$${item.value}
+      <br>Value: ${item.value}
     `;
 
     if (clickFn) el.onclick = () => clickFn(i);
-
     div.appendChild(el);
   });
 }
@@ -78,7 +89,7 @@ function addTrader(i) {
 // ---------------- TRADE ----------------
 function startTrade() {
   document.getElementById("result").innerText =
-    "Métis offers trade...";
+    "Trade prepared. Awaiting acceptance.";
 }
 
 function acceptTrade() {
@@ -95,10 +106,10 @@ function acceptTrade() {
     traderOffer = [];
 
     document.getElementById("result").innerText =
-      "Trade accepted between nations";
+      "Trade accepted and completed.";
   } else {
     document.getElementById("result").innerText =
-      "Trade rejected (unfair value)";
+      "Trade rejected (unfair value).";
   }
 
   render();
