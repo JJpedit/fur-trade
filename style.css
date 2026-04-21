@@ -1,35 +1,39 @@
 body {
   font-family: Arial;
   text-align: center;
-  background: #dbe7c9;
+  background: #e7e2d6;
 }
 
 .container {
   display: flex;
   justify-content: space-around;
-  margin-top: 20px;
 }
 
 .box {
   background: white;
-  padding: 15px;
-  border-radius: 10px;
   width: 30%;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.hunt-area img {
+  width: 80px;
+  margin: 5px;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.hunt-area img:hover {
+  border: 2px solid black;
 }
 
 .item {
-  border: 2px solid #444;
+  border: 1px solid #444;
   margin: 5px;
   padding: 5px;
   cursor: pointer;
-  background: #f4f4f4;
 }
 
-.trade-box {
-  display: flex;
-  justify-content: space-around;
-}
-
-img {
-  width: 40px;
+.item img {
+  width: 50px;
 }
