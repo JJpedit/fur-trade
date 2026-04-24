@@ -2,52 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voyageur: The Red River Trade</title>
+    <title>Voyageur: Frontier Merchant</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="game-wrapper">
+    <div id="game-container">
+        <div id="overlay" class="hidden">
+            <div class="modal">
+                <h2 id="modal-title">Game Over</h2>
+                <p id="modal-desc">The wilderness was too harsh...</p>
+                <button onclick="location.reload()">Try Again</button>
+            </div>
+        </div>
+
         <header>
-            <h1>VOYAGEUR</h1>
-            <p id="date-display">Year: 1822 | Season: Autumn</p>
+            <div class="top-bar">
+                <div class="stat-box">🪙 <span id="mb">20</span> MB</div>
+                <div class="stat-box">🍖 <span id="rations">15</span> Food</div>
+                <div class="stat-box">🌟 <span id="prestige">0</span>/50 Prestige</div>
+                <div class="stat-box">❤️ <span id="health">100</span>% Health</div>
+            </div>
+            <div class="sub-bar">
+                <span id="date">Spring, 1822</span> | <span id="location">Fort Garry</span>
+            </div>
         </header>
 
-        <main>
-            <section class="stats-bar">
-                <div class="stat">🪙 MB: <span id="currency">10</span></div>
-                <div class="stat">🥩 Food: <span id="food">20</span></div>
-                <div class="stat">🛶 Health: <span id="health">100</span>%</div>
-            </section>
-
-            <div class="game-grid">
-                <aside class="inventory-panel">
-                    <h3>Cargo</h3>
-                    <ul id="inventory-list">
-                        </ul>
-                </aside>
-
-                <section class="action-panel">
-                    <div class="location-visual">
-                        <div id="location-name">Fort Garry</div>
-                        <img id="scene-img" src="https://via.placeholder.com/400x200?text=Trading+Post" alt="Historical Scene">
-                    </div>
-                    
-                    <div class="button-group">
-                        <button onclick="game.trade('beaver')">Trade Beaver Pelts</button>
-                        <button onclick="game.trade('pemmican')">Supply Pemmican</button>
-                        <button onclick="game.hunt()">Go Bison Hunt</button>
-                        <button onclick="game.nextTurn()">End Month</button>
-                    </div>
-                </section>
-            </div>
-
-            <footer class="event-log">
-                <h3>Journal</h3>
-                <div id="log-content">You arrived at the Red River Colony. The Métis families are preparing for the winter.</div>
-            </footer>
-        </main>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>
+        <main class="game-layout">
+            <section class="left-panel">
+                <h3>Market & Actions</h3>
+                <div id="market-ui
