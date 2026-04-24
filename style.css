@@ -1,40 +1,33 @@
-
 body {
-  margin: 0;
-  font-family: Arial;
-  background: #cbb89d;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
   text-align: center;
+  padding: 20px;
 }
 
-/* HUD */
-#hud {
-  background: #3b2f2f;
-  color: white;
-  padding: 10px;
+#game {
+  max-width: 600px;
+  margin: auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.controls {
-  font-size: 12px;
-  opacity: 0.8;
+.offers {
+  display: flex;
+  justify-content: space-around;
+  margin: 20px 0;
 }
 
-/* GAME CANVAS */
-canvas {
-  border: 3px solid black;
-  background: #6fbf73;
-  display: block;
-  margin: 10px auto;
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
 }
 
-/* TRADE UI */
-#tradeUI {
-  position: absolute;
-  top: 120px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: white;
-  padding: 15px;
-  border: 2px solid black;
-  display: none;
-  width: 200px;
+#result {
+  margin-top: 20px;
+  font-size: 1.2em;
+  height: 1.2em;
 }
