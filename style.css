@@ -1,33 +1,43 @@
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-  text-align: center;
-  padding: 20px;
+    background-color: #2e241f;
+    color: #f4ece1;
+    font-family: 'Georgia', serif;
+    display: flex;
+    justify-content: center;
+    padding-top: 50px;
 }
 
-#game {
-  max-width: 600px;
-  margin: auto;
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.game-container {
+    background: #4a3c31;
+    padding: 20px;
+    border: 5px solid #8b5a2b;
+    width: 400px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
 
-.offers {
-  display: flex;
-  justify-content: space-around;
-  margin: 20px 0;
+.inventory, .market {
+    background: #5d4a3b;
+    margin: 15px 0;
+    padding: 10px;
+    border-radius: 5px;
 }
 
 button {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
+    background: #8b5a2b;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    font-weight: bold;
 }
 
-#result {
-  margin-top: 20px;
-  font-size: 1.2em;
-  height: 1.2em;
+button:hover {
+    background: #a67c52;
+}
+
+#status-log {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #d2b48c;
 }
