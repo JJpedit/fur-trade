@@ -2,33 +2,51 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Northwest Fur Trade Simulator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voyageur: The Red River Trade</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="game-container">
-        <h1>Fur Trade Simulator: 1820</h1>
-        
-        <div class="inventory">
-            <h3>Your Inventory</h3>
-            <p>Beaver Pelts: <span id="pelts">10</span></p>
-            <p>Pemmican: <span id="pemmican">5</span></p>
-            <p>Metal Tools: <span id="tools">0</span></p>
-        </div>
+    <div id="game-wrapper">
+        <header>
+            <h1>VOYAGEUR</h1>
+            <p id="date-display">Year: 1822 | Season: Autumn</p>
+        </header>
 
-        <div class="market">
-            <h3>The Trading Post</h3>
-            <div class="trade-option">
-                <p>1 Beaver Pelt → 2 Metal Tools</p>
-                <button onclick="trade('peltToTools')">Trade Pelt</button>
-            </div>
-            <div class="trade-option">
-                <p>2 Pemmican → 1 Beaver Pelt</p>
-                <button onclick="trade('pemmicanToPelt')">Trade Pemmican</button>
-            </div>
-        </div>
+        <main>
+            <section class="stats-bar">
+                <div class="stat">🪙 MB: <span id="currency">10</span></div>
+                <div class="stat">🥩 Food: <span id="food">20</span></div>
+                <div class="stat">🛶 Health: <span id="health">100</span>%</div>
+            </section>
 
-        <div id="status-log">Welcome to the Red River Colony. Start your trade.</div>
+            <div class="game-grid">
+                <aside class="inventory-panel">
+                    <h3>Cargo</h3>
+                    <ul id="inventory-list">
+                        </ul>
+                </aside>
+
+                <section class="action-panel">
+                    <div class="location-visual">
+                        <div id="location-name">Fort Garry</div>
+                        <img id="scene-img" src="https://via.placeholder.com/400x200?text=Trading+Post" alt="Historical Scene">
+                    </div>
+                    
+                    <div class="button-group">
+                        <button onclick="game.trade('beaver')">Trade Beaver Pelts</button>
+                        <button onclick="game.trade('pemmican')">Supply Pemmican</button>
+                        <button onclick="game.hunt()">Go Bison Hunt</button>
+                        <button onclick="game.nextTurn()">End Month</button>
+                    </div>
+                </section>
+            </div>
+
+            <footer class="event-log">
+                <h3>Journal</h3>
+                <div id="log-content">You arrived at the Red River Colony. The Métis families are preparing for the winter.</div>
+            </footer>
+        </main>
     </div>
     <script src="script.js"></script>
 </body>
