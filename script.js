@@ -1,94 +1,123 @@
 const game = {
-    // State Variables
-    mb: 10, // Made Beaver (Currency)
-    food: 20,
+    // 1. Initial State
+    mb: 20,
+    food: 15,
     health: 100,
-    month: 0,
-    inventory: {
-        beaverPelts: 5,
-        bisonRobes: 0,
-        muskets: 1,
-        blankets: 2
+    prestige: 0,
+    year: 1822,
+    seasonIdx: 0,
+    seasons: ["Spring", "Summer", "Autumn", "Winter"],
+    location: "Fort Garry",
+    inventory: { "Beaver Pelts": 2, "Bison Robes": 0, "Metal Tools": 1 },
+
+    // 2. Market Prices (Changes by location)
+    prices: {
+        "Fort Garry": { "Beaver Pelts": 8, "Bison Robes": 15, "Metal Tools": 5 },
+        "Settlement": { "Beaver Pelts": 4, "Bison Robes": 6, "Metal Tools": 10 }
     },
 
-    // UI Update Method
-    updateUI() {
-        document.getElementById('currency').innerText = this.mb;
-        document.getElementById('food').innerText = this.food;
-        document.getElementById('health').innerText = this.health;
-        
-        const invList = document.getElementById('inventory-list');
-        invList.innerHTML = `
-            <li>Beaver Pelts: ${this.inventory.beaverPelts}</li>
-            <li>Bison Robes: ${this.inventory.bisonRobes}</li>
-            <li>Muskets: ${this.inventory.muskets}</li>
-        `;
-    },
-
-    // Logging Method
-    log(message) {
-        const logContent = document.getElementById('log-content');
-        logContent.innerHTML = `<div>> ${message}</div>` + logContent.innerHTML;
-    },
-
-    // Trade Logic
-    trade(item) {
-        if (item === 'beaver' && this.inventory.beaverPelts > 0) {
-            this.inventory.beaverPelts--;
-            this.mb += 2;
-            this.log("Traded a pelt to the HBC for 2 Made Beaver tokens.");
-        } else if (item === 'pemmican' && this.food > 5) {
-            this.food -= 5;
-            this.mb += 3;
-            this.log("The Métis brigade bought your pemmican for 3 MB.");
-        } else {
-            this.log("Insufficient resources for this trade.");
-        }
+    // 3. Travel Mechanic
+    travel() {
+        this.location = (this.location === "Fort Garry") ? "Settlement" : "Fort Garry";
+        this.food -= 5;
+        this.log(`You trekked to ${this.location}. Rations consumed.`);
+        this.advanceTime();
+        this.checkGameOver();
         this.updateUI();
     },
 
-    // Hunting Logic with Randomness
+    // 4. Hunting Mechanic
     hunt() {
-        if (this.food < 2) return this.log("Too hungry to hunt!");
-        
-        let success = Math.random();
-        if (success > 0.4) {
-            this.inventory.bisonRobes += 1;
-            this.food += 10;
-            this.log("The bison hunt was a success! Fresh meat and robes acquired.");
+        if (this.food < 5) return this.log("Too weak to hunt!");
+        this.food -= 5;
+        if (Math.random() > 0.4) {
+            this.inventory["Bison Robes"] += 1;
+            this.food += 12;
+            this.prestige += 2;
+            this.log("Success! You brought down a bison.");
         } else {
-            this.health -= 10;
-            this.log("The hunt was dangerous. You returned empty-handed and exhausted.");
+            this.health -= 15;
+            this.log("The hunt failed. You are injured.");
         }
+        this.advanceTime();
+        this.checkGameOver();
         this.updateUI();
     },
 
-    // Turn Progression & Random Events
-    nextTurn() {
-        this.month++;
-        this.food -= 3; // Consumption
-        
-        // Random Event Engine
-        const events = [
-            { msg: "A harsh frost hits. Food supplies drop.", effect: () => this.food -= 5 },
-            { msg: "The Northwest Company offers a bonus for pelts.", effect: () => this.mb += 5 },
-            { msg: "Friendly trade with Cree neighbors improves morale.", effect: () => this.health += 5 }
-        ];
-
-        if (Math.random() > 0.7) {
-            let event = events[Math.floor(Math.random() * events.length)];
-            this.log(`EVENT: ${event.msg}`);
-            event.effect();
+    // 5. Core Logic
+    trade(item, isBuying) {
+        let price = this.prices[this.location][item];
+        if (isBuying && this.mb >= price) {
+            this.mb -= price;
+            this.inventory[item]++;
+            this.log(`Bought ${item}.`);
+        } else if (!isBuying && this.inventory[item] > 0) {
+            this.mb += price;
+            this.inventory[item]--;
+            this.prestige += (item === "Bison Robes") ? 5 : 1;
+            this.log(`Sold ${item} for profit.`);
         }
-
-        if (this.health <= 0 || this.food <= 0) {
-            alert("The wilderness has reclaimed you. Game Over.");
-            location.reload();
-        }
-
+        this.checkWin();
         this.updateUI();
+    },
+
+    advanceTime() {
+        this.seasonIdx++;
+        if (this.seasonIdx > 3) {
+            this.seasonIdx = 0;
+            this.year++;
+        }
+    },
+
+    checkGameOver() {
+        if (this.health <= 0 || this.food <= 0) {
+            this.showEndScreen("Game Over", "The frontier was too harsh for you this year.");
+        }
+    },
+
+    checkWin() {
+        if (this.prestige >= 50) {
+            this.showEndScreen("Victory!", "You have become a legendary Merchant Prince of the North.");
+        }
+    },
+
+    showEndScreen(title, desc) {
+        document.getElementById("overlay").classList.remove("hidden");
+        document.getElementById("modal-title").innerText = title;
+        document.getElementById("modal-desc").innerText = desc;
+    },
+
+    log(msg) {
+        const l = document.getElementById("log");
+        l.innerHTML = `> ${msg}<br>` + l.innerHTML;
+    },
+
+    updateUI() {
+        document.getElementById("mb").innerText = this.mb;
+        document.getElementById("rations").innerText = this.food;
+        document.getElementById("health").innerText = this.health;
+        document.getElementById("prestige").innerText = this.prestige;
+        document.getElementById("date").innerText = `${this.seasons[this.seasonIdx]}, ${this.year}`;
+        document.getElementById("location").innerText = this.location;
+        document.getElementById("next-loc").innerText = (this.location === "Fort Garry") ? "Settlement" : "Fort Garry";
+
+        // Update Market
+        let mHTML = "<table>";
+        for (let item in this.prices[this.location]) {
+            let p = this.prices[this.location][item];
+            mHTML += `<tr><td>${item} (${p} MB)</td> 
+                <td><button onclick="game.trade('${item}', true)">Buy</button></td>
+                <td><button onclick="game.trade('${item}', false)">Sell</button></td></tr>`;
+        }
+        document.getElementById("market-ui").innerHTML = mHTML + "</table>";
+
+        // Update Inventory
+        let iHTML = "<ul>";
+        for (let item in this.inventory) {
+            iHTML += `<li>${item}: ${this.inventory[item]}</li>`;
+        }
+        document.getElementById("inventory-ui").innerHTML = iHTML + "</ul>";
     }
 };
 
-// Initialize
 game.updateUI();
