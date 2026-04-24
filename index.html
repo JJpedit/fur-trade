@@ -1,35 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Fur Trade Open World</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fur Trade Game</title>
+<link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
-
-<div id="hud">
-  <h2>Fur Trade World</h2>
-  <p id="ui">Loading...</p>
-  <p id="info"></p>
-
-  <p class="controls">
-    WASD = Move | SPACE = Hunt | E = Trade
-  </p>
+<h1>Fur Trade Game</h1>
+<div id="game">
+  <div id="status"></div>
+  <div class="offers">
+    <div>
+      <h2>European's Offer</h2>
+      <p id="european-offer"></p>
+    </div>
+    <div>
+      <h2>Métis's Offer</h2>
+      <p id="metis-offer"></p>
+    </div>
+  </div>
+  <button id="tradeBtn">Make Trade</button>
+  <div id="result"></div>
+  <button id="restartBtn" style="display:none;">Restart Game</button>
 </div>
-
-<canvas id="game" width="900" height="500"></canvas>
-
-<!-- TRADE POPUP -->
-<div id="tradeUI">
-  <h3 id="tradeTitle"></h3>
-  <p>Press ACCEPT to sell items</p>
-
-  <button onclick="acceptTrade()">Accept Trade</button>
-  <button onclick="exitTrade()">Leave</button>
-</div>
-
 <script src="script.js"></script>
-
 </body>
 </html>
