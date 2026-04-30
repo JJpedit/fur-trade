@@ -1,33 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Voyageur: Frontier Merchant</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Jaittrans Cookies</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="game-container">
-        <div id="overlay" class="hidden">
-            <div class="modal">
-                <h2 id="modal-title">Game Over</h2>
-                <p id="modal-desc">The wilderness was too harsh...</p>
-                <button onclick="location.reload()">Try Again</button>
-            </div>
-        </div>
 
-        <header>
-            <div class="top-bar">
-                <div class="stat-box">🪙 <span id="mb">20</span> MB</div>
-                <div class="stat-box">🍖 <span id="rations">15</span> Food</div>
-                <div class="stat-box">🌟 <span id="prestige">0</span>/50 Prestige</div>
-                <div class="stat-box">❤️ <span id="health">100</span>% Health</div>
-            </div>
-            <div class="sub-bar">
-                <span id="date">Spring, 1822</span> | <span id="location">Fort Garry</span>
-            </div>
-        </header>
+  <header>
+    <h1>🍪 Jaittrans Cookies</h1>
+    <p>Fresh. Sweet. Elite.</p>
+  </header>
 
-        <main class="game-layout">
-            <section class="left-panel">
-                <h3>Market & Actions</h3>
-                <div id="market-ui
+  <section class="menu">
+    <h2>Our Flavours</h2>
+    <div class="cookies">
+      <div class="cookie">
+        <h3>Nutella</h3>
+        <p>Rich chocolate + Nutella goodness</p>
+      </div>
+      <div class="cookie">
+        <h3>Choco Chunk</h3>
+        <p>Classic chunky chocolate cookies</p>
+      </div>
+      <div class="cookie">
+        <h3>Cookies & Cream</h3>
+        <p>Oreo-style creamy flavor</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="order">
+    <h2>Order Now</h2>
+    <form id="orderForm">
+      <input type="text" placeholder="Your Name" required>
+
+      <select required>
+        <option value="">Select Flavor</option>
+        <option>Nutella</option>
+        <option>Choco Chunk</option>
+        <option>Cookies & Cream</option>
+      </select>
+
+      <input type="number" placeholder="Quantity" min="1" required>
+
+      <button type="submit">Place Order</button>
+    </form>
+
+    <p id="confirmation"></p>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
